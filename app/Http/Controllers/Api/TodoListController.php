@@ -15,17 +15,21 @@ class TodoListController extends Controller
      */
     public function index(Request $request)
     {
-        $query = TodoList::query();
-
-        if (null !== $limit = $request->query->get('limit')) {
-            $query->limit($limit);
-
-            if (null !== $offset = $request->query->get('offset')) {
-                $query->offset($offset);
-            }
+        if (null === $searchTerm = $request->query->get('s')) {
+            $result = TodoList::query();
+        } else {
+            $result = TodoList::search($request->query->get('s'))
+                ->where('boost(name)', 5)
+                ->where('boost(tags)', 2);
         }
 
-        return $query->get();
+        if (null !== $active = $request->query->get('active')) {
+            $result->where('active', $active);
+        }
+
+        $limit = $request->query->get('limit');
+
+        return null === $limit ? $result->get() : $result->paginate($limit);
     }
 
     /**

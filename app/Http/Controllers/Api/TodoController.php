@@ -15,25 +15,25 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Todo::query();
+        if (null === $searchTerm = $request->query->get('s')) {
+            $result = Todo::query();
+        } else {
+            $result = Todo::search($request->query->get('s'))
+                ->where('boost(name)', 5)
+                ->where('boost(tags)', 2);
+        }
 
         if (null !== $checked = $request->query->get('checked')) {
-            $query->where('checked', $checked);
+            $result->where('checked', $checked);
         }
 
-        if (null !== $listId = $request->query->get('list')) {
-            $query->where('list_id', $listId);
+        if (null !== $listId = $request->query->get('list_id')) {
+            $result->where('list_id', $listId);
         }
 
-        if (null !== $limit = $request->query->get('limit')) {
-            $query->limit($limit);
+        $limit = $request->query->get('limit');
 
-            if (null !== $offset = $request->query->get('offset')) {
-                $query->offset($offset);
-            }
-        }
-
-        return $query->get();
+        return null === $limit ? $result->get() : $result->paginate($limit);
     }
 
     /**
