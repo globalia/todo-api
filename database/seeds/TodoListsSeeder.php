@@ -12,6 +12,8 @@ class TodoListsSeeder extends Seeder
      */
     public function run()
     {
+        TodoList::disableSearchSyncing();
+
         TodoList::create([
             'id' => 1,
             'name' => 'Grocery list',

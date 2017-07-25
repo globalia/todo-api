@@ -13,6 +13,8 @@ class TodosSeeder extends Seeder
      */
     public function run()
     {
+        Todo::disableSearchSyncing();
+
         $groceryList = TodoList::query()->find(1);
 
         Todo::create([
@@ -65,5 +67,13 @@ class TodosSeeder extends Seeder
             'name' => 'Neta Riskin',
             'list_id' => $invitationList->id,
         ]);
+
+
+
+        factory(Todo::class, 5000)->create();
+
+//        ->each(function ($todo) {
+//            $u->posts()->save(factory(App\Post::class)->make());
+//        });
     }
 }
