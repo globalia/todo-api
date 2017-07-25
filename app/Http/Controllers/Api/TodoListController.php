@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 
 class TodoListController extends Controller
 {
+    const DEFAULT_LIMIT = 10;
+
     /**
      * Display a listing of the resource.
      *
@@ -27,9 +29,12 @@ class TodoListController extends Controller
             $result->where('active', $active);
         }
 
-        $limit = $request->query->get('limit');
+        if (! ($limit = $request->query->get('limit', self::DEFAULT_LIMIT))) {
+            return $result->get();
+        }
 
-        return null === $limit ? $result->get() : $result->paginate($limit);
+        return $result->paginate($limit)
+            ->appends(array_merge($request->query->all(), ['limit' => $limit]));
     }
 
     /**
